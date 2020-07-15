@@ -1,11 +1,16 @@
 import numpy as np
 
 maze = np.full((3, 3), '.')
-g_rez = 0
+#g_rez = 0
 
 def show_maze():
-    print(maze)
-    #should make the visualization a bit more comfortable
+    print("\nThe up-to-date maze is:")
+    for i in range(0, 3):
+        for j in range(0, 3):
+            print(maze[i][j], end=' ')
+        print()
+    print()
+    #should make the visualization a bit more comfortable (works for now, might use GUI later)
 
 def get_rank(x, y):
     rez = 0
@@ -53,9 +58,33 @@ def check_win(x, y, v):
         return 1
     return 0
 
+def place(val):
+    valid = 0
+    while valid == 0:
+        x, y = input("At what position do you want to place " + str(val) + "?\n").split()
+        x = int(x)
+        y = int(y)
+        if maze[x][y] != '.':
+            print("This cell is already used!")
+        else:
+            valid = 1
+    maze[x][y] = val
+    return check_win(x, y, val) #after placing the element it will return whether the winner has been found :)
+
 def start():
+    count = 1
     for i in range(0, 9):
-        iasdasasdjklasb
+        show_maze()
+        if count == 1:
+            if place('x'):
+                print("Player using x has won!")
+                return
+        else:
+            if place('o'):
+                print("Player using o has won!")
+                return
+        count *= -1
+    print("Frienship has won!")
     pass
 
 #necessary for debugging
@@ -65,5 +94,12 @@ def show_ranks():
             print(get_rank(i, j), end=' ')
         print()
 
+def test():
+    x, y = input("wassap wigga?!").split()
+    print(x, " and ", y, " make:", int(x) + int(y))
+
+start()
 #show_ranks()
+#place(1)
 #show_maze()
+#test()
