@@ -1,13 +1,14 @@
 import numpy as np
+#imports all the AI functionality
+from minimax import *
 
 maze = np.full((3, 3), '.')
-#g_rez = 0
 
-def show_maze():
+def show_maze(board):
     print("\nThe up-to-date maze is:")
     for i in range(0, 3):
         for j in range(0, 3):
-            print(maze[i][j], end=' ')
+            print(board[i][j], end=' ')
         print()
     print()
     #should make the visualization a bit more comfortable (works for now, might use GUI later)
@@ -71,17 +72,16 @@ def place(val):
     maze[x][y] = val
     return check_win(x, y, val) #after placing the element it will return whether the winner has been found :)
 
-def start():
-    count = 1
+def start(count): #count==1 for player first and count==-1 for Ai first
     for i in range(0, 9):
-        show_maze()
+        show_maze(maze)
         if count == 1:
             if place('x'):
                 print("Player using x has won!")
                 return
         else:
-            if place('o'):
-                print("Player using o has won!")
+            if ai_place(maze, 'o'):
+                print("The AI has won!")
                 return
         count *= -1
     print("Frienship has won!")
@@ -98,7 +98,9 @@ def test():
     x, y = input("wassap wigga?!").split()
     print(x, " and ", y, " make:", int(x) + int(y))
 
-start()
+start(1) #for player goes first
+#start(-1) for Ai goes first
+
 #show_ranks()
 #place(1)
 #show_maze()
