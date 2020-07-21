@@ -1,6 +1,6 @@
-import numpy as np
 #imports all the AI functionality
-from minimax import *
+import numpy as np
+import math
 
 maze = np.full((3, 3), '.')
 
@@ -80,12 +80,80 @@ def start(count): #count==1 for player first and count==-1 for Ai first
                 print("Player using x has won!")
                 return
         else:
-            if ai_place(maze, 'o'):
+            if ai_place('o'):
                 print("The AI has won!")
                 return
         count *= -1
     print("Frienship has won!")
     pass
+
+def isFull(board):
+    for i in range(0,3):
+        for j in range(0, 3):
+            if board[i][j] == '.':
+                return False #because it found a free spot
+    return True #because it found no free spots == isFull
+
+def freeSpaces(board):
+    count = 0
+    for i in range(0, 3):
+        for j in range(0, 3):
+            if board[i][j] == '.':
+                count += 1
+    return count #returns the number of free spaces
+
+def checkWinner():
+    for i in range(0, 3):
+        if check_win(i, i, 'x'):
+            return 1 #if the player has won
+        if check_win(i, i, 'o'):
+            return 2 #if the AI has won
+    return 0 #if nobody has won yet / the game is a tie
+
+def minimax(isMaxim):
+    result = checkWinner()
+    space = freeSpaces(maze)
+    if result == 0 and space == 0:
+        return 0
+    elif result > 0:
+        return (result * 2 - 3) * (space + 1)
+    if isMaxim:
+        bestScore = -100
+        for i in range(0, 3):
+            for j in range(0, 3):
+                if maze[i][j] == '.':
+                    maze[i][j] = 'o'
+                    score = minimax(False)
+                    maze[i][j] = '.'
+                    bestScore = max(score, bestScore)
+        return bestScore
+    else:
+        bestScore = 100
+        for i in range(0, 3):
+            for j in range(0, 3):
+                if maze[i][j] == '.':
+                    maze[i][j] = 'x'
+                    score = minimax(True)
+                    maze[i][j] = '.'
+                    bestScore = min(score, bestScore)
+        return bestScore
+    pass
+
+def ai_place(val):
+    bestScore = -math.inf
+    move = ()
+    for i in range(0, 3):
+        for j in range(0, 3):
+            if maze[i][j] == '.':
+                maze[i][j] = val
+                score = minimax(False)
+                maze[i][j] = '.'
+                if score > bestScore:
+                    bestScore = score
+                    move = (i, j)
+    maze[move[0]][move[1]] = val
+    return check_win(move[0], move[1], val)
+
 
 #necessary for debugging
 def show_ranks():
@@ -94,14 +162,8 @@ def show_ranks():
             print(get_rank(i, j), end=' ')
         print()
 
-def test():
-    x, y = input("wassap wigga?!").split()
-    print(x, " and ", y, " make:", int(x) + int(y))
-
+#place('x')
+#ai_place('o')
+#show_maze(maze)
 start(1) #for player goes first
-#start(-1) for Ai goes first
-
-#show_ranks()
-#place(1)
-#show_maze()
-#test()
+#start(-1) #for Ai goes first
