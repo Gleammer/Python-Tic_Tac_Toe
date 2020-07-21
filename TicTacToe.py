@@ -13,7 +13,7 @@ def show_maze(board):
     print()
     #should make the visualization a bit more comfortable (works for now, might use GUI later)
 
-def get_rank(x, y):
+def get_rank(x, y): #not really necessary
     rez = 0
     if x == y:
         rez += 1
@@ -36,26 +36,21 @@ def check_lines(x, y, v):
     return 0
 
 def check_f_diagonal(v):
-    for i in range(0, 3):
-        if maze[i][i] != v:
-            return 0
-    return 1 #if the winner is found
+    if (maze[0][0] == v) and (maze[0][0] == maze[1][1]) and (maze[1][1] == maze[2][2]):
+        return True
+    return False
 
 def check_s_diagonal(v):
-    for i in range(0,3):
-        if maze[i][2-i] != v:
-            return 0
-    return 1 #if the winner is found
+    if (maze[0][2] == v) and (maze[0][2] == maze[1][1]) and (maze[1][1] == maze[2][0]):
+        return True
+    return False
 
 def check_win(x, y, v):
-    rank = get_rank(x, y)
     if check_lines(x, y, v):
         return 1
-    if (rank == 1) and check_f_diagonal(v):
+    if (x == y) and check_f_diagonal(v):
         return 1
-    elif (rank == 2) and check_s_diagonal(v):
-        return 1
-    elif (rank == 3) and (check_f_diagonal(v) or check_s_diagonal(v)):
+    if (x + y == 2) and check_s_diagonal(v):
         return 1
     return 0
 
@@ -110,7 +105,7 @@ def checkWinner():
             return 2 #if the AI has won
     return 0 #if nobody has won yet / the game is a tie
 
-def minimax(isMaxim):
+def minimax(isMaxim, alpha, beta):
     result = checkWinner()
     space = freeSpaces(maze)
     if result == 0 and space == 0:
@@ -118,24 +113,30 @@ def minimax(isMaxim):
     elif result > 0:
         return (result * 2 - 3) * (space + 1)
     if isMaxim:
-        bestScore = -100
+        bestScore = -math.inf
         for i in range(0, 3):
             for j in range(0, 3):
                 if maze[i][j] == '.':
                     maze[i][j] = 'o'
-                    score = minimax(False)
+                    score = minimax(False, alpha, beta)
                     maze[i][j] = '.'
                     bestScore = max(score, bestScore)
+                    alpha = max(alpha, score)
+                    if beta <= alpha:
+                        break
         return bestScore
     else:
-        bestScore = 100
+        bestScore = math.inf
         for i in range(0, 3):
             for j in range(0, 3):
                 if maze[i][j] == '.':
                     maze[i][j] = 'x'
-                    score = minimax(True)
+                    score = minimax(True, alpha, beta)
                     maze[i][j] = '.'
                     bestScore = min(score, bestScore)
+                    beta = min(beta, score)
+                    if beta <= alpha:
+                        break
         return bestScore
     pass
 
@@ -146,7 +147,7 @@ def ai_place(val):
         for j in range(0, 3):
             if maze[i][j] == '.':
                 maze[i][j] = val
-                score = minimax(False)
+                score = minimax(False, -math.inf, math.inf)
                 maze[i][j] = '.'
                 if score > bestScore:
                     bestScore = score
